@@ -703,6 +703,15 @@ func (dc *Context) LoadFontFace(path string, points float64) error {
 	return err
 }
 
+func (dc *Context) LoadNewFontFace(path string, points, dpi float64) error {
+	face, err := LoadNewFontFace(path, points, dpi)
+	if err == nil {
+		dc.fontFace = face
+		dc.fontHeight = points * 72 / 96
+	}
+	return err
+}
+
 func (dc *Context) FontHeight() float64 {
 	return dc.fontHeight
 }
@@ -791,6 +800,36 @@ func (dc *Context) DrawStringWrapped(s string, x, y, ax, ay, width, lineSpacing 
 	}
 }
 
+// DrawNewStringWrapped word-wraps the specified string to the given max width
+// and then draws it at the specified anchor point using the given line
+// spacing and text alignment.
+func (dc *Context) DrawNewStringWrapped(s string, x, y, ax, ay, width, height, lineSpacing float64, align Align) {
+	count := height / (dc.fontHeight * lineSpacing)
+	lines := dc.WordNewWrap(s, int(count), width)
+
+	// sync h formula with MeasureMultilineString
+	h := count * dc.fontHeight * lineSpacing
+	h -= (lineSpacing - 1) * dc.fontHeight
+
+	x -= ax * width
+	y -= ay * h
+	switch align {
+	case AlignLeft:
+		ax = 0
+	case AlignCenter:
+		ax = 0.5
+		x += width / 2
+	case AlignRight:
+		ax = 1
+		x += width
+	}
+	ay = 1
+	for _, line := range lines {
+		dc.DrawStringAnchored(line, x, y, ax, ay)
+		y += dc.fontHeight * lineSpacing
+	}
+}
+
 func (dc *Context) MeasureMultilineString(s string, lineSpacing float64) (width, height float64) {
 	lines := strings.Split(s, "\n")
 
@@ -828,6 +867,12 @@ func (dc *Context) MeasureString(s string) (w, h float64) {
 // font face.
 func (dc *Context) WordWrap(s string, w float64) []string {
 	return wordWrap(dc, s, w)
+}
+
+// WordWrap wraps the specified string to the given max width and current
+// font face.
+func (dc *Context) WordNewWrap(s string, count int, w float64) []string {
+	return wordNewWrap(dc, s, count, w)
 }
 
 // Transformation Matrix Operations
