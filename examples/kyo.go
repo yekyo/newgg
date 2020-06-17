@@ -49,7 +49,7 @@ func main() {
 	dc.Clear()
 	dc.SetRGB255(255,255,255)
 
-	if err := dc.LoadFontFace("/Users/pengye/Library/Fonts/DFYuanLightHK.ttf", 233); err != nil {
+	if err := dc.LoadNewFontFace("/Users/pengye/Library/Fonts/DFYuanLightHK.ttf", 112.88, 150); err != nil {
 		panic(err)
 	}
 	//dc.DrawStringAnchored("Hello, world!", W/2, W/2, 0.5, 0.5)

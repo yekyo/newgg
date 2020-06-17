@@ -707,7 +707,7 @@ func (dc *Context) LoadNewFontFace(path string, points, dpi float64) error {
 	face, err := LoadNewFontFace(path, points, dpi)
 	if err == nil {
 		dc.fontFace = face
-		dc.fontHeight = points * 72 / 96
+		dc.fontHeight = points * dpi / 72
 	}
 	return err
 }
